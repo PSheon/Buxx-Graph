@@ -22,11 +22,26 @@
     <link rel="icon" href="./common/favicon/icon-144.png" sizes="144x144" />
     <!-- end meta block -->
     <link rel="stylesheet" href="./common/index.css?v=6.0.8" />
-    <link rel="stylesheet" href="./codebase/diagram.css?v=6.0.8" />
-    <script type="text/javascript" src="./codebase/diagram.js?v=6.0.8"></script>
+    <link rel="stylesheet" href="./codebase/diagramWithEditor.css?v=6.0.8" />
+    <script
+      type="text/javascript"
+      src="./codebase/diagramWithEditor.js?v=6.0.8"
+    ></script>
+    <style>
+      .dhx_sample-widget {
+        height: 100%;
+      }
+    </style>
   </head>
   <body>
+    <div class="dhx_sample-widget" id="editor"></div>
     <script>
+      const editor = new dhx.DiagramEditor("editor", {
+        type: "org",
+        shapeType: "img-card",
+        draggable: false,
+      });
+
       const rows = [
         {
           id: "1",
@@ -6199,13 +6214,7 @@
         },
       ];
 
-      const diagram = new dhx.Diagram(document.body, {
-        type: "org",
-        defaultShapeType: "img-card",
-        scale: 0.35,
-      });
-
-      diagram.data.parse(rows);
+      editor.parse(rows);
     </script>
   </body>
 </html>
