@@ -7,3 +7,4 @@ export declare function getDistanceFactor(distance?: number): number;
 export declare function getDistancePercentage(factor: number): number;
 export declare function getDistanceEblowLine(line: ILineConfig, cp: IBaseCoords): number;
 export declare function addLineTitle(line: any, diagram: any): void;
+export declare function calcPathLength(data: string): number;
