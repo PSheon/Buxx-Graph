@@ -21,11 +21,325 @@
     <link rel="icon" href="./common/favicon/icon-96.png" sizes="96x96" />
     <link rel="icon" href="./common/favicon/icon-144.png" sizes="144x144" />
     <!-- end meta block -->
+    <!-- 原有樣式表 -->
     <link rel="stylesheet" href="./common/index.css?v=6.0.8" />
     <link rel="stylesheet" href="./codebase/diagram.css?v=6.0.8" />
+
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 引入 Shadcn UI 基本樣式 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/@shadcn/ui@0.0.4/dist/index.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- 網頁圖形庫 -->
     <script type="text/javascript" src="./codebase/diagram.js?v=6.0.8"></script>
+
+    <!-- 設定 Tailwind 配置 -->
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              border: "hsl(var(--border))",
+              input: "hsl(var(--input))",
+              ring: "hsl(var(--ring))",
+              background: "hsl(var(--background))",
+              foreground: "hsl(var(--foreground))",
+              primary: {
+                DEFAULT: "hsl(var(--primary))",
+                foreground: "hsl(var(--primary-foreground))",
+              },
+              secondary: {
+                DEFAULT: "hsl(var(--secondary))",
+                foreground: "hsl(var(--secondary-foreground))",
+              },
+              destructive: {
+                DEFAULT: "hsl(var(--destructive))",
+                foreground: "hsl(var(--destructive-foreground))",
+              },
+              muted: {
+                DEFAULT: "hsl(var(--muted))",
+                foreground: "hsl(var(--muted-foreground))",
+              },
+              accent: {
+                DEFAULT: "hsl(var(--accent))",
+                foreground: "hsl(var(--accent-foreground))",
+              },
+              popover: {
+                DEFAULT: "hsl(var(--popover))",
+                foreground: "hsl(var(--popover-foreground))",
+              },
+              card: {
+                DEFAULT: "hsl(var(--card))",
+                foreground: "hsl(var(--card-foreground))",
+              },
+            },
+            borderRadius: {
+              lg: "var(--radius)",
+              md: "calc(var(--radius) - 2px)",
+              sm: "calc(var(--radius) - 4px)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      /* Shadcn UI 變數 */
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
+        --primary: 221.2 83.2% 53.3%;
+        --primary-foreground: 210 40% 98%;
+        --secondary: 210 40% 96.1%;
+        --secondary-foreground: 222.2 47.4% 11.2%;
+        --muted: 210 40% 96.1%;
+        --muted-foreground: 215.4 16.3% 46.9%;
+        --accent: 210 40% 96.1%;
+        --accent-foreground: 222.2 47.4% 11.2%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 214.3 31.8% 91.4%;
+        --input: 214.3 31.8% 91.4%;
+        --ring: 221.2 83.2% 53.3%;
+        --radius: 0.5rem;
+      }
+
+      .dark {
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
+        --card: 222.2 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222.2 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 217.2 91.2% 59.8%;
+        --primary-foreground: 222.2 47.4% 11.2%;
+        --secondary: 217.2 32.6% 17.5%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
+        --accent: 217.2 32.6% 17.5%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --ring: 224.3 76.3% 48%;
+      }
+
+      /* 容器樣式 */
+      .diagram-container {
+        flex: 1;
+        position: relative;
+      }
+      .dhx_diagram_item {
+        cursor: pointer;
+      }
+      .highlight {
+        box-shadow: 0 0 15px 8px #ff5722 !important;
+        border: 4px solid #ff5722 !important;
+        border-radius: 4px !important;
+        position: relative;
+        z-index: 100;
+        transform: scale(1.1);
+        transition: all 0.3s ease;
+        animation: pulse 1.5s infinite;
+      }
+
+      /* 選中節點的樣式 */
+      .selected-node {
+        box-shadow: 0 0 10px 5px hsl(var(--primary)) !important;
+        border: 3px solid hsl(var(--primary)) !important;
+        border-radius: 4px !important;
+        position: relative;
+        z-index: 90;
+        transform: scale(1.05);
+        transition: all 0.2s ease;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 15px 8px rgba(255, 87, 34, 0.8);
+        }
+        50% {
+          box-shadow: 0 0 20px 12px rgba(255, 87, 34, 1);
+        }
+        100% {
+          box-shadow: 0 0 15px 8px rgba(255, 87, 34, 0.8);
+        }
+      }
+
+      /* 匹配計數器樣式 */
+      .match-counter {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 抽屜樣式 */
+      #nodeDrawer {
+        max-height: 50vh;
+        overflow-y: auto;
+      }
+
+      /* 顯示抽屜的類 */
+      .drawer-open {
+        transform: translateY(0) !important;
+      }
+    </style>
   </head>
-  <body>
+  <body class="bg-background text-foreground">
+    <div class="flex flex-col h-screen w-full">
+      <!-- 搜尋面板 -->
+      <div
+        class="py-4 px-6 bg-muted border-b border-border flex items-center gap-4 z-10"
+      >
+        <div class="relative flex-1 max-w-sm">
+          <input
+            type="text"
+            id="searchInput"
+            class="w-full px-4 py-2 rounded-md border border-input bg-background text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-ring pr-10"
+            placeholder="輸入關鍵字搜尋節點..."
+            autocomplete="off"
+          />
+          <button
+            id="clearInputButton"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hidden"
+            aria-label="清除搜尋"
+            type="button"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-x"
+            >
+              <path d="M18 6 6 18"></path>
+              <path d="m6 6 12 12"></path>
+            </svg>
+          </button>
+
+          <!-- 自動完成下拉菜單 -->
+          <div
+            id="autocompleteResults"
+            class="absolute left-0 right-0 mt-1 max-h-60 overflow-auto bg-background border border-border rounded-md shadow-md z-20 hidden"
+          >
+            <!-- 自動完成選項會在這裡動態生成 -->
+          </div>
+        </div>
+        <button
+          id="searchButton"
+          class="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
+        >
+          搜尋
+        </button>
+      </div>
+
+      <!-- 圖表容器 -->
+      <div id="diagram" class="diagram-container"></div>
+
+      <!-- 匹配計數器 -->
+      <div
+        id="matchCounter"
+        class="match-counter hidden px-4 py-2 rounded-md bg-primary text-primary-foreground"
+      >
+        找到 <span id="matchCount" class="font-bold">0</span> 個符合項
+      </div>
+
+      <!-- 節點信息抽屜 -->
+      <div
+        id="nodeDrawer"
+        class="fixed bottom-0 left-0 right-0 bg-background border-t border-border transform translate-y-full transition-transform duration-300 ease-in-out shadow-lg z-30"
+      >
+        <div
+          class="flex justify-between items-center p-4 border-b border-border"
+        >
+          <h3 id="drawerTitle" class="text-lg font-semibold">節點詳細資訊</h3>
+          <button
+            id="closeDrawer"
+            class="p-2 text-muted-foreground hover:text-foreground rounded-md"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-x"
+            >
+              <path d="M18 6 6 18"></path>
+              <path d="m6 6 12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 class="text-sm font-medium text-muted-foreground mb-2">
+                基本資訊
+              </h4>
+              <div class="space-y-3">
+                <div>
+                  <label class="text-xs text-muted-foreground">ID</label>
+                  <p id="nodeId" class="text-foreground font-medium">-</p>
+                </div>
+                <div>
+                  <label class="text-xs text-muted-foreground">標題</label>
+                  <p id="nodeTitle" class="text-foreground font-medium">-</p>
+                </div>
+                <div>
+                  <label class="text-xs text-muted-foreground">文本</label>
+                  <p
+                    id="nodeText"
+                    class="text-foreground font-medium break-all"
+                  >
+                    -
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-muted-foreground mb-2">
+                關係資訊
+              </h4>
+              <div class="space-y-3">
+                <div>
+                  <label class="text-xs text-muted-foreground">父節點</label>
+                  <p id="nodeParent" class="text-foreground font-medium">-</p>
+                </div>
+                <div>
+                  <label class="text-xs text-muted-foreground">子節點</label>
+                  <div
+                    id="nodeChildren"
+                    class="text-foreground font-medium"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <script>
       const originalData = [
         {
@@ -9223,8 +9537,8 @@
       // 執行重新排列
       const reorganizedData = reorganizeCoordinates(originalData);
 
-      // 初始化圖表
-      const diagram = new dhx.Diagram(document.body, {
+      // 初始化圖表 - 使用容器ID而不是document.body
+      const diagram = new dhx.Diagram("diagram", {
         type: "org",
         defaultShapeType: "img-card",
         scale: 0.35,
@@ -9232,6 +9546,469 @@
 
       // 加載重新排列後的數據
       diagram.data.parse(reorganizedData);
+
+      // 搜尋相關功能 - 獲取DOM元素
+      const searchInput = document.getElementById("searchInput");
+      const searchButton = document.getElementById("searchButton");
+      const clearInputButton = document.getElementById("clearInputButton");
+      const matchCounter = document.getElementById("matchCounter");
+      const matchCount = document.getElementById("matchCount");
+      const autocompleteResults = document.getElementById(
+        "autocompleteResults"
+      );
+
+      // 將單一節點參考變更為陣列，以追蹤所有高亮節點
+      let highlightedNodes = [];
+
+      // 當點擊其他地方時，隱藏自動完成選項
+      document.addEventListener("click", function (e) {
+        if (
+          !searchInput.contains(e.target) &&
+          !autocompleteResults.contains(e.target)
+        ) {
+          autocompleteResults.classList.add("hidden");
+        }
+      });
+
+      // 自動完成功能初始化
+      function initAutocomplete() {
+        // 所有節點的文本列表（用於自動完成）
+        const nodeTextList = [];
+
+        // 建立節點文本與ID的映射
+        const nodeTextToId = {};
+
+        // 只收集節點，不收集連線
+        diagram.data.forEach((item) => {
+          if (item.type && item.type !== "line") {
+            // 同時考慮 text 和 title
+            const text = item.text || "";
+            const title = item.title || "";
+            const displayText = title ? `${title}: ${text}` : text;
+
+            if (displayText.trim()) {
+              nodeTextList.push(displayText);
+              nodeTextToId[displayText] = item.id;
+            }
+          }
+        });
+
+        // 返回處理過的數據
+        return { nodeTextList, nodeTextToId };
+      }
+
+      // 初始化自動完成資料
+      const { nodeTextList, nodeTextToId } = initAutocomplete();
+
+      // 更新自動完成選項
+      function updateAutocompleteResults(inputValue) {
+        // 清空現有選項
+        autocompleteResults.innerHTML = "";
+
+        if (!inputValue.trim()) {
+          autocompleteResults.classList.add("hidden");
+          return;
+        }
+
+        // 過濾符合的選項
+        const matchingOptions = nodeTextList.filter((text) =>
+          text.toLowerCase().includes(inputValue.toLowerCase())
+        );
+
+        // 如果有符合項，顯示下拉菜單
+        if (matchingOptions.length > 0) {
+          matchingOptions.slice(0, 8).forEach((text) => {
+            const option = document.createElement("div");
+            option.className = "px-4 py-2 cursor-pointer hover:bg-muted";
+
+            // 高亮匹配的部分
+            const regex = new RegExp(`(${inputValue})`, "gi");
+            option.innerHTML = text.replace(
+              regex,
+              '<span class="font-bold text-primary">$1</span>'
+            );
+
+            // 點擊選項時的動作
+            option.addEventListener("click", () => {
+              searchInput.value = text;
+              autocompleteResults.classList.add("hidden");
+
+              // 高亮顯示對應的節點
+              clearHighlight();
+              const nodeId = nodeTextToId[text];
+              if (nodeId) {
+                highlightNode(nodeId);
+
+                // 滾動到節點
+                const node = diagram.data.getItem(nodeId);
+                if (node) {
+                  diagram.scrollTo(node.x, node.y);
+                }
+
+                // 更新計數器
+                matchCount.textContent = "1";
+                matchCounter.classList.remove("hidden");
+              }
+            });
+
+            autocompleteResults.appendChild(option);
+          });
+
+          autocompleteResults.classList.remove("hidden");
+        } else {
+          autocompleteResults.classList.add("hidden");
+        }
+      }
+
+      // 控制清除按鈕的顯示與隱藏，同時更新自動完成選項
+      searchInput.addEventListener("input", () => {
+        clearInputButton.classList.toggle("hidden", !searchInput.value);
+        updateAutocompleteResults(searchInput.value);
+      });
+
+      // 搜尋框獲得焦點時，顯示自動完成選項
+      searchInput.addEventListener("focus", () => {
+        if (searchInput.value.trim()) {
+          updateAutocompleteResults(searchInput.value);
+        }
+      });
+
+      // 支持鍵盤導航自動完成選項
+      searchInput.addEventListener("keydown", (e) => {
+        const options = autocompleteResults.querySelectorAll("div");
+        const currentIndex = Array.from(options).findIndex((option) =>
+          option.classList.contains("bg-muted")
+        );
+
+        if (options.length === 0) return;
+
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+
+          if (currentIndex < 0) {
+            // 選擇第一個選項
+            options[0].classList.add("bg-muted");
+          } else if (currentIndex < options.length - 1) {
+            // 選擇下一個選項
+            options[currentIndex].classList.remove("bg-muted");
+            options[currentIndex + 1].classList.add("bg-muted");
+          }
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+
+          if (currentIndex > 0) {
+            // 選擇上一個選項
+            options[currentIndex].classList.remove("bg-muted");
+            options[currentIndex - 1].classList.add("bg-muted");
+          }
+        } else if (e.key === "Enter" && currentIndex >= 0) {
+          // 選擇當前高亮的選項
+          e.preventDefault();
+          options[currentIndex].click();
+        }
+      });
+
+      // 清除按鈕的功能
+      clearInputButton.addEventListener("click", () => {
+        searchInput.value = "";
+        clearInputButton.classList.add("hidden");
+        autocompleteResults.classList.add("hidden");
+        clearHighlight();
+      });
+
+      // 搜尋功能實現
+      function searchNode() {
+        const searchText = searchInput.value.toLowerCase().trim();
+        if (!searchText) return;
+
+        // 清除先前的高亮
+        clearHighlight();
+
+        // 先移除可能的錯誤樣式
+        searchInput.classList.remove(
+          "border-destructive",
+          "ring-destructive",
+          "ring-1"
+        );
+
+        // 搜尋節點
+        let foundCount = 0;
+        let firstFoundNode = null;
+
+        diagram.data.forEach((item) => {
+          // 只搜尋節點，不搜尋連線
+          if (item.type && item.type !== "line") {
+            // 檢查節點的 text 或 title 是否包含搜尋文字
+            const itemText = (item.text || "").toLowerCase();
+            const itemTitle = (item.title || "").toLowerCase();
+
+            if (
+              itemText.includes(searchText) ||
+              itemTitle.includes(searchText)
+            ) {
+              // 找到匹配項，高亮顯示
+              highlightNode(item.id);
+              foundCount++;
+
+              // 記錄第一個找到的節點，用於滾動顯示
+              if (!firstFoundNode) {
+                firstFoundNode = item;
+              }
+            }
+          }
+        });
+
+        if (foundCount === 0) {
+          // 顯示錯誤狀態 - 將搜尋框變紅
+          searchInput.classList.add(
+            "border-destructive",
+            "ring-destructive",
+            "ring-1"
+          );
+          matchCounter.classList.add("hidden");
+
+          // 設置震動效果
+          searchInput.animate(
+            [
+              { transform: "translateX(0)" },
+              { transform: "translateX(-5px)" },
+              { transform: "translateX(5px)" },
+              { transform: "translateX(-5px)" },
+              { transform: "translateX(5px)" },
+              { transform: "translateX(0)" },
+            ],
+            {
+              duration: 400,
+              easing: "ease-in-out",
+            }
+          );
+
+          // 3秒後恢復正常狀態
+          setTimeout(() => {
+            searchInput.classList.remove(
+              "border-destructive",
+              "ring-destructive",
+              "ring-1"
+            );
+          }, 3000);
+        } else {
+          // 滾動到第一個找到的節點
+          if (firstFoundNode) {
+            diagram.scrollTo(firstFoundNode.x, firstFoundNode.y);
+          }
+
+          // 更新並顯示計數器
+          matchCount.textContent = foundCount;
+          matchCounter.classList.remove("hidden");
+        }
+      }
+
+      // 高亮顯示節點
+      function highlightNode(id) {
+        const nodeEl = document.querySelector(`[data-dhx-id="${id}"]`);
+        if (nodeEl) {
+          nodeEl.classList.add("highlight");
+          highlightedNodes.push(nodeEl);
+        }
+      }
+
+      // 清除高亮
+      function clearHighlight() {
+        highlightedNodes.forEach((node) => {
+          node.classList.remove("highlight");
+        });
+        highlightedNodes = [];
+        matchCounter.classList.add("hidden");
+
+        // 同時取消選中狀態
+        if (currentSelectedNode) {
+          const selectedEl = document.querySelector(
+            `[data-dhx-id="${currentSelectedNode}"]`
+          );
+          if (selectedEl) {
+            selectedEl.classList.remove("selected-node");
+          }
+          currentSelectedNode = null;
+        }
+      }
+
+      // 綁定搜尋按鈕點擊事件
+      searchButton.addEventListener("click", searchNode);
+
+      // 綁定鍵盤事件，按下 Enter 鍵進行搜尋
+      searchInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          searchNode();
+        }
+      });
+
+      // 節點抽屜相關功能
+      const nodeDrawer = document.getElementById("nodeDrawer");
+      const closeDrawer = document.getElementById("closeDrawer");
+      const drawerTitle = document.getElementById("drawerTitle");
+      const nodeId = document.getElementById("nodeId");
+      const nodeTitle = document.getElementById("nodeTitle");
+      const nodeText = document.getElementById("nodeText");
+      const nodeParent = document.getElementById("nodeParent");
+      const nodeChildren = document.getElementById("nodeChildren");
+
+      // 關閉抽屜
+      closeDrawer.addEventListener("click", () => {
+        nodeDrawer.classList.remove("drawer-open");
+      });
+
+      // 點擊節點時顯示抽屜
+      function setupNodeClickEvents() {
+        // 為所有節點添加點擊事件
+        diagram.events.on("shapeclick", function (id) {
+          // 獲取節點資料
+          const node = diagram.data.getItem(id);
+          if (node && node.type !== "line") {
+            // 選中節點
+            selectNode(id);
+
+            // 顯示節點詳細資訊
+            showNodeDetails(node);
+          }
+        });
+
+        // 點擊背景取消選中
+        document
+          .getElementById("diagram")
+          .addEventListener("click", function (e) {
+            // 檢查點擊是否在節點外部
+            if (
+              e.target.classList.contains("dhx_diagram_flow") ||
+              e.target.classList.contains("dhx_diagram_org") ||
+              e.target.classList.contains("diagram-container")
+            ) {
+              // 取消選中當前節點
+              if (currentSelectedNode) {
+                const selectedEl = document.querySelector(
+                  `[data-dhx-id="${currentSelectedNode}"]`
+                );
+                if (selectedEl) {
+                  selectedEl.classList.remove("selected-node");
+                }
+                currentSelectedNode = null;
+              }
+            }
+          });
+      }
+
+      // 記錄當前選中的節點
+      let currentSelectedNode = null;
+
+      // 選中節點功能
+      function selectNode(id) {
+        // 如果有之前選中的節點，先移除選中狀態
+        if (currentSelectedNode) {
+          const prevSelectedEl = document.querySelector(
+            `[data-dhx-id="${currentSelectedNode}"]`
+          );
+          if (prevSelectedEl) {
+            prevSelectedEl.classList.remove("selected-node");
+          }
+        }
+
+        // 如果點擊的是同一個節點，取消選中
+        if (currentSelectedNode === id) {
+          currentSelectedNode = null;
+          return;
+        }
+
+        // 保存當前選中的節點ID並添加選中樣式
+        currentSelectedNode = id;
+        const nodeEl = document.querySelector(`[data-dhx-id="${id}"]`);
+        if (nodeEl) {
+          nodeEl.classList.add("selected-node");
+        }
+      }
+
+      // 顯示節點詳細資訊
+      function showNodeDetails(node) {
+        // 更新抽屜標題
+        drawerTitle.textContent = node.title
+          ? `${node.title} 詳細資訊`
+          : "節點詳細資訊";
+
+        // 填充基本資訊
+        nodeId.textContent = node.id || "-";
+        nodeTitle.textContent = node.title || "-";
+        nodeText.textContent = node.text || "-";
+
+        // 填充父節點資訊
+        if (node.parent) {
+          const parentNode = diagram.data.getItem(node.parent);
+          if (parentNode) {
+            const parentInfo = parentNode.title
+              ? `${parentNode.title} (${parentNode.id})`
+              : `${parentNode.id}`;
+            nodeParent.textContent = parentInfo;
+
+            // 為父節點添加點擊事件
+            nodeParent.style.cursor = "pointer";
+            nodeParent.style.color = "hsl(var(--primary))";
+            nodeParent.onclick = function () {
+              const parentNode = diagram.data.getItem(node.parent);
+              if (parentNode) {
+                diagram.scrollTo(parentNode.x, parentNode.y);
+              }
+            };
+          } else {
+            nodeParent.textContent = `${node.parent} (未找到)`;
+            nodeParent.style.cursor = "default";
+            nodeParent.style.color = "";
+            nodeParent.onclick = null;
+          }
+        } else {
+          nodeParent.textContent = "無";
+          nodeParent.style.cursor = "default";
+          nodeParent.style.color = "";
+          nodeParent.onclick = null;
+        }
+
+        // 填充子節點資訊
+        nodeChildren.innerHTML = "";
+
+        // 查找所有以此節點為父節點的節點
+        const childNodes = [];
+        diagram.data.forEach((item) => {
+          if (item.parent === node.id) {
+            childNodes.push(item);
+          }
+        });
+
+        if (childNodes.length > 0) {
+          const childList = document.createElement("div");
+          childList.className = "space-y-1 mt-1";
+
+          childNodes.forEach((child) => {
+            const childItem = document.createElement("div");
+            childItem.className = "text-primary cursor-pointer hover:underline";
+            childItem.textContent = child.title
+              ? `${child.title} (${child.id})`
+              : `${child.id}`;
+
+            // 添加點擊事件滾動到子節點
+            childItem.addEventListener("click", () => {
+              diagram.scrollTo(child.x, child.y);
+            });
+
+            childList.appendChild(childItem);
+          });
+
+          nodeChildren.appendChild(childList);
+        } else {
+          nodeChildren.textContent = "無";
+        }
+
+        // 顯示抽屜
+        nodeDrawer.classList.add("drawer-open");
+      }
+
+      // 設置節點點擊事件
+      setupNodeClickEvents();
     </script>
   </body>
 </html>
